@@ -56,7 +56,6 @@ public class StudentsController : ControllerBase
 
         if (identity == null)
             return null;
-        Console.WriteLine(identity.IsAuthenticated);
 
         var claims = identity.Claims;
 
@@ -64,6 +63,9 @@ public class StudentsController : ControllerBase
         student.FirstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
         student.LastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         student.Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+        student.Gender = int.Parse(claims.FirstOrDefault(c => c.Type == "Gender")?.Value);
+        student.IsDorms = int.Parse(claims.FirstOrDefault(c => c.Type == "IsDorms")?.Value);
+        student.StudentId = int.Parse(claims.FirstOrDefault(c => c.Type == "StudentId")?.Value);
 
         return student;
     }
