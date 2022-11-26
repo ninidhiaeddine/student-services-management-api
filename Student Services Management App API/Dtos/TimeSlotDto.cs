@@ -5,4 +5,6 @@ public class TimeSlotDto
     public string ServiceType { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
+    public int MaximumCapacity { get; set; }
+    public int CurrentCapacity { get; set; } = 0;
 }
