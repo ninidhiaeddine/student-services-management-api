@@ -9,7 +9,7 @@ public class Student
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public int StudentId { get; set; }
-    public int Gender { get; set; }
-    public int IsDorms { get; set; }
+    public int Gender { get; set; } // 0 = Male, 1 = Female
+    public int IsDorms { get; set; } // 0 = False, 1 = True
     public string HashedPassword { get; set; } = string.Empty;
 }

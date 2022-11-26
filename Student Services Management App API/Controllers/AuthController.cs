@@ -35,21 +35,49 @@ public class AuthController : ControllerBase
     [HttpPost("admins")]
     public async Task<ActionResult<Student>> SignInAsAdmin([FromBody] SignInDto signIn)
     {
+        var admin = AuthenticateAdmin(signIn);
+
+        if (admin == null)
+            return NotFound();
+
+        var token = GenerateToken(admin);
+
         return Ok();
     }
 
     private static string GenerateToken(Student student)
     {
-        var jwtKey = Environment.GetEnvironmentVariable("ASPNETCORE_JWTKEY");
-        var jwtIssuer = Environment.GetEnvironmentVariable("ASPNETCORE_JWTISSUER");
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
             new Claim("FirstName", student.FirstName),
             new Claim("LastName", student.LastName),
-            new Claim("Email", student.Email)
+            new Claim("Email", student.Email),
+            new Claim("StudentId", student.StudentId.ToString()),
+            new Claim("Gender", student.Gender.ToString()),
+            new Claim("IsDorms", student.IsDorms.ToString())
         };
+
+        return GenerateToken(claims);
+    }
+
+    private static string GenerateToken(Admin admin)
+    {
+        var claims = new[]
+        {
+            new Claim("FirstName", admin.FirstName),
+            new Claim("LastName", admin.LastName),
+            new Claim("Email", admin.Email)
+        };
+
+        return GenerateToken(claims);
+    }
+
+    private static string GenerateToken(Claim[] claims)
+    {
+        var jwtKey = Environment.GetEnvironmentVariable("ASPNETCORE_JWTKEY");
+        var jwtIssuer = Environment.GetEnvironmentVariable("ASPNETCORE_JWTISSUER");
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             jwtIssuer,
