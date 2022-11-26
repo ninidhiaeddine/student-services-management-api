@@ -28,7 +28,7 @@ public class TimeSlotsController : ControllerBase
     }
 
     [HttpGet]
-    [Route("{timeSlot}")]
+    [Route("{timeSlotId}")]
     [Authorize(Roles = "Admin,Student")]
     public async Task<ActionResult> GetTimeSlotById(int timeSlotId)
     {
