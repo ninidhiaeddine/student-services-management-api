@@ -56,7 +56,7 @@ public partial class DataAccessLayer
         return timeSlots;
     }
 
-    public static void UpdateTimeSlot(
+    public static bool UpdateTimeSlot(
         DatabaseContext db,
         int targetTimeSlotsId,
         int serviceType,
@@ -68,7 +68,7 @@ public partial class DataAccessLayer
         // find target time slot:
         var target = db.TimeSlots.FirstOrDefault(slot => slot.PK_TimeSlot == targetTimeSlotsId);
         if (target == null)
-            return;
+            return false;
 
         // update target time slot data:
         target.ServiceType = serviceType;
@@ -79,5 +79,7 @@ public partial class DataAccessLayer
 
         // save database changes:
         db.SaveChanges();
+
+        return true;
     }
 }
