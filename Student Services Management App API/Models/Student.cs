@@ -12,45 +12,4 @@ public class Student
     public int Gender { get; set; }
     public int IsDorms { get; set; }
     public string HashedPassword { get; set; } = string.Empty;
-
-    public static void AddStudentDb(
-        string firstName,
-        string lastName,
-        string email,
-        int studentId,
-        int gender,
-        int isDorms,
-        string hashedPassword)
-    {
-        using var db = new DatabaseContext();
-        Console.WriteLine("Finished establishing Db Context");
-
-        var student = new Student();
-        student.FirstName = firstName;
-        student.LastName = lastName;
-        student.Email = email;
-        student.StudentId = studentId;
-        student.Gender = gender;
-        student.IsDorms = isDorms;
-        student.HashedPassword = hashedPassword;
-
-        Console.WriteLine("Finished creating Student");
-
-        db.Students.Add(student);
-
-        Console.WriteLine("Finished adding to db");
-        db.SaveChanges();
-
-
-        Console.WriteLine("Finished saving");
-    }
-
-    public static Student? GetStudentByIdDb(int studentId)
-    {
-        using var db = new DatabaseContext();
-        var student = db.Students
-            .FirstOrDefault(student => student.PK_Student == studentId);
-
-        return student;
-    }
 }
