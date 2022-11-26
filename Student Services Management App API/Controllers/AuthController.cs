@@ -1,6 +1,9 @@
-﻿using System.Security.Cryptography;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Student_Services_Management_App_API.DAL;
 using Student_Services_Management_App_API.Dtos;
 using Student_Services_Management_App_API.Models;
 
@@ -10,61 +13,70 @@ namespace Student_Services_Management_App_API.Controllers;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    [HttpPost("signup/students")]
-    public async Task<ActionResult<Student>> SignUpAsStudent([FromBody] StudentDto student)
+    private readonly DatabaseContext dbContext;
+
+    public AuthController(DatabaseContext context)
     {
-        Console.WriteLine(student.FirstName);
-        Console.WriteLine(student.LastName);
-        Console.WriteLine(student.Email);
-        Console.WriteLine(student.StudentId);
-        Console.WriteLine(student.Gender);
-        Console.WriteLine(student.IsDorms);
-        Console.WriteLine(student.Password);
-
-        Student.AddStudentDb(
-            student.FirstName,
-            student.LastName,
-            student.Email,
-            student.StudentId,
-            student.Gender,
-            student.IsDorms,
-            HashPassword(student.Password));
-
-        return Ok();
+        dbContext = context;
     }
 
-    [HttpPost("signup/admins")]
-    public async Task<ActionResult<Student>> SignUpAsAdmin()
+    [HttpPost("students")]
+    public async Task<ActionResult<Student>> SignInAsStudent([FromBody] SignInDto signIn)
+    {
+        var student = AuthenticateStudent(signIn);
+
+        if (student == null)
+            return NotFound();
+
+        var token = GenerateToken(student);
+        return Ok(token);
+    }
+
+    [HttpPost("admins")]
+    public async Task<ActionResult<Student>> SignInAsAdmin([FromBody] SignInDto signIn)
     {
         return Ok();
     }
 
-    [HttpPost("signin/students")]
-    public async Task<ActionResult<Student>> SignInAsStudent()
+    private static string GenerateToken(Student student)
     {
-        return Ok();
+        var jwtKey = Environment.GetEnvironmentVariable("ASPNETCORE_JWTKEY");
+        var jwtIssuer = Environment.GetEnvironmentVariable("ASPNETCORE_JWTISSUER");
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var claims = new[]
+        {
+            new Claim("FirstName", student.FirstName),
+            new Claim("LastName", student.LastName),
+            new Claim("Email", student.Email)
+        };
+
+        var token = new JwtSecurityToken(
+            jwtIssuer,
+            jwtIssuer,
+            claims,
+            expires: DateTime.Now.AddMinutes(15),
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    [HttpPost("signin/admins")]
-    public async Task<ActionResult<Student>> SignInAsAdmin([FromBody] Student student)
+    private Student? AuthenticateStudent(SignInDto signIn)
     {
-        return Ok();
+        var student = DataAccessLayer.GetStudentByEmail(dbContext, signIn.Email);
+        if (student != null &&
+            BCrypt.Net.BCrypt.Verify(signIn.Password, student.HashedPassword))
+            return student;
+
+        return null;
     }
 
-    private static string HashPassword(string password)
+    private Admin? AuthenticateAdmin(SignInDto signIn)
     {
-        // Generate a 128-bit salt using a sequence of
-        // cryptographically strong random bytes.
-        var salt = RandomNumberGenerator.GetBytes(128 / 8); // divide by 8 to convert bits to bytes
+        var admin = DataAccessLayer.GetAdminByEmail(dbContext, signIn.Email);
+        if (admin != null && BCrypt.Net.BCrypt.Verify(signIn.Password, admin.HashedPassword))
+            return admin;
 
-        // derive a 256-bit subkey (use HMACSHA256 with 100,000 iterations)
-        var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password!,
-            salt,
-            KeyDerivationPrf.HMACSHA256,
-            100000,
-            256 / 8));
-
-        return hashed;
+        return null;
     }
 }
