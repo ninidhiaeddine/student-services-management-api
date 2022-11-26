@@ -18,6 +18,7 @@ public class AdminsController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> GetAllAdmins()
     {
         var admins = DataAccessLayer.GetAllAdmins(dbContext);
@@ -29,6 +30,7 @@ public class AdminsController : ControllerBase
     }
 
     [HttpGet("{adminId}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> GetAdmin(int adminId)
     {
         var admin = DataAccessLayer.GetAdminById(dbContext, adminId);
@@ -39,7 +41,7 @@ public class AdminsController : ControllerBase
     }
 
     [HttpGet("me")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> GetMe()
     {
         var me = GetCurrentUser();

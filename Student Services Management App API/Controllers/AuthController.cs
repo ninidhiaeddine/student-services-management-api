@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Student_Services_Management_App_API.DAL;
@@ -11,6 +12,7 @@ namespace Student_Services_Management_App_API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly DatabaseContext dbContext;
@@ -54,7 +56,8 @@ public class AuthController : ControllerBase
             new Claim("Email", student.Email),
             new Claim("StudentId", student.StudentId.ToString()),
             new Claim("Gender", student.Gender.ToString()),
-            new Claim("IsDorms", student.IsDorms.ToString())
+            new Claim("IsDorms", student.IsDorms.ToString()),
+            new Claim(ClaimTypes.Role, "Student")
         };
 
         return GenerateToken(claims);
@@ -66,7 +69,8 @@ public class AuthController : ControllerBase
         {
             new Claim("FirstName", admin.FirstName),
             new Claim("LastName", admin.LastName),
-            new Claim("Email", admin.Email)
+            new Claim("Email", admin.Email),
+            new Claim(ClaimTypes.Role, "Admin")
         };
 
         return GenerateToken(claims);

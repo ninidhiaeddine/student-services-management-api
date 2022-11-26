@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Student_Services_Management_App_API.DAL;
 using Student_Services_Management_App_API.Dtos;
 using Student_Services_Management_App_API.Models;
@@ -7,6 +8,7 @@ namespace Student_Services_Management_App_API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[AllowAnonymous]
 public class RegistrationController : ControllerBase
 {
     private readonly DatabaseContext dbContext;
