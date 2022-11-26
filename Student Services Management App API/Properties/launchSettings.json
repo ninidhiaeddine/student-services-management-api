@@ -1,23 +1,17 @@
-﻿{
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:21163",
-      "sslPort": 44330
-    }
-  },
+{
   "profiles": {
     "Student_Services_Management_App_API": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7093;http://localhost:5093",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_CONNECTIONSTRING": "Server=eu-cdbr-west-03.cleardb.net;Database=heroku_c89291c3e0d17eb;Uid=b79a7b90d0e9fd;Pwd=1ca8623f;",
+        "ASPNETCORE_JWTKEY": "oAEmcHct7=*omK+h",
+        "ASPNETCORE_JWTISSUER": "https://localhost:7093"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7093;http://localhost:5093"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -26,6 +20,15 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:21163",
+      "sslPort": 44330
     }
   }
 }
