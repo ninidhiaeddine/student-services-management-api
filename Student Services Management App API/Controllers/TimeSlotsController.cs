@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Student_Services_Management_App_API.DAL;
 using Student_Services_Management_App_API.Dtos;
 using Student_Services_Management_App_API.Models;
@@ -17,21 +18,7 @@ public class TimeSlotsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TimeSlot>> AddTimeSlot([FromBody] TimeSlotDto dto)
-    {
-        DataAccessLayer.AddTimeSlot(
-            dbContext,
-            dto.ServiceType,
-            dto.StartTime,
-            dto.EndTime,
-            dto.MaximumCapacity,
-            dto.CurrentCapacity
-        );
-
-        return Ok();
-    }
-
-    [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<TimeSlot>> AddTimeSlots([FromBody] List<TimeSlotDto> dtos)
     {
         var timeSlots = DtosToTimeSlots(dtos);
@@ -41,6 +28,7 @@ public class TimeSlotsController : ControllerBase
     }
 
     [HttpGet("{timeSlotId}")]
+    [Authorize(Roles = "Admin,Student")]
     public async Task<ActionResult> GetTimeSlotById(int timeSlotId)
     {
         var timeSlot = DataAccessLayer.GetTimeSlotById(dbContext, timeSlotId);
@@ -51,6 +39,7 @@ public class TimeSlotsController : ControllerBase
     }
 
     [HttpGet("{serviceType}")]
+    [Authorize(Roles = "Admin,Student")]
     public async Task<ActionResult> GetTimeSlotsByServiceType(int serviceType)
     {
         var timeSlots = DataAccessLayer.GetTimeSlotsByServiceType(dbContext, serviceType);
@@ -60,7 +49,8 @@ public class TimeSlotsController : ControllerBase
         return Ok(timeSlots);
     }
 
-    [HttpGet("{serviceType} {startDateInclusive} {endDateExclusive}")]
+    [HttpGet]
+    [Authorize(Roles = "Admin,Student")]
     public async Task<ActionResult> GetTimeSlotsWithinDateRange(
         int serviceType,
         DateTime startDateInclusive,
@@ -79,6 +69,7 @@ public class TimeSlotsController : ControllerBase
     }
 
     [HttpPut("timeSlotId")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> UpdateTimeSlot([FromBody] TimeSlotDto dto, int timeSlotId)
     {
         var success = DataAccessLayer.UpdateTimeSlot(
