@@ -1,6 +1,6 @@
 ﻿namespace Student_Services_Management_App_API.Dtos;
 
-public class StudentDto
+public class StudentSignUpDto
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
