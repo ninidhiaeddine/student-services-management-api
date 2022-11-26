@@ -43,17 +43,17 @@ public class TimeSlotsController : ControllerBase
     [Authorize(Roles = "Admin,Student")]
     public async Task<ActionResult> GetTimeSlots(
         [FromQuery] int serviceType,
-        [FromQuery] DateTime startDateInclusive = default,
-        [FromQuery] DateTime endDateExclusive = default)
+        [FromQuery] DateTime? startDateInclusive,
+        [FromQuery] DateTime? endDateExclusive)
     {
         List<TimeSlot> timeSlots;
 
-        if (startDateInclusive == default && endDateExclusive == default)
+        if (startDateInclusive.HasValue && endDateExclusive.HasValue)
             timeSlots = DataAccessLayer.GetTimeSlotsWithinDateRange(
                 dbContext,
                 serviceType,
-                startDateInclusive,
-                endDateExclusive);
+                startDateInclusive.Value,
+                endDateExclusive.Value);
         else
             timeSlots = DataAccessLayer.GetTimeSlotsByServiceType(dbContext, serviceType);
 

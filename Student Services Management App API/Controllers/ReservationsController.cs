@@ -27,7 +27,7 @@ public class ReservationsController : ControllerBase
         return Ok();
     }
 
-    [HttpGet]
+    [HttpGet("{reservationId:int}")]
     public async Task<ActionResult> GetReservationById(int reservationId)
     {
         var reservation = DataAccessLayer.GetReservationById(dbContext, reservationId);
@@ -40,17 +40,19 @@ public class ReservationsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult> GetReservations(
-        [FromQuery] int studentId = default,
-        [FromQuery] int timeSlotId = default)
+        [FromQuery] int? studentId,
+        [FromQuery] int? timeSlotId)
     {
+        if ((studentId.HasValue && timeSlotId.HasValue)
+            || (!studentId.HasValue && !timeSlotId.HasValue))
+            return BadRequest("You can only specify 'studentId' or 'timeSlotId' at a time.");
+
         List<Reservation> reservations;
 
-        if (studentId != default)
-            reservations = DataAccessLayer.GetReservationsByStudent(dbContext, studentId);
-        else if (timeSlotId != default)
-            reservations = DataAccessLayer.GetTimeSlotReservations(dbContext, timeSlotId);
+        if (studentId.HasValue)
+            reservations = DataAccessLayer.GetReservationsByStudent(dbContext, studentId.Value);
         else
-            return BadRequest("You can only specify 'studentId' or 'timeSlotId' at a time.");
+            reservations = DataAccessLayer.GetTimeSlotReservations(dbContext, timeSlotId.Value);
 
         if (reservations.Capacity > 0)
             return Ok(reservations);

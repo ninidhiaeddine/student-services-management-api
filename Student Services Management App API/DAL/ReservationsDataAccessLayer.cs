@@ -10,8 +10,8 @@ public partial class DataAccessLayer
         int studentId)
     {
         var reservation = new Reservation();
-        reservation.FK_Reservation_TimeSlot = timeSlotId;
-        reservation.FK_Reservation_Student = studentId;
+        reservation.FK_Reservations_TimeSlots = timeSlotId;
+        reservation.FK_Reservations_Students = studentId;
 
         db.Reservations.Add(reservation);
         db.SaveChanges();
@@ -28,7 +28,7 @@ public partial class DataAccessLayer
     public static List<Reservation> GetReservationsByStudent(DatabaseContext db, int studentId)
     {
         var reservations = db.Reservations
-            .Where(r => r.FK_Reservation_Student == studentId)
+            .Where(r => r.FK_Reservations_Students == studentId)
             .ToList();
 
         return reservations;
@@ -37,7 +37,7 @@ public partial class DataAccessLayer
     public static List<Reservation> GetTimeSlotReservations(DatabaseContext db, int timeSlotId)
     {
         var reservations = db.Reservations
-            .Where(r => r.FK_Reservation_TimeSlot == timeSlotId)
+            .Where(r => r.FK_Reservations_TimeSlots == timeSlotId)
             .ToList();
 
         return reservations;
