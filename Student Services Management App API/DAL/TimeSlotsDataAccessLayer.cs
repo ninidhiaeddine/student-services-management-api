@@ -37,7 +37,7 @@ public partial class DataAccessLayer
 
     public static List<TimeSlot> GetTimeSlotsByServiceType(DatabaseContext db, int serviceType)
     {
-        var timeSlots = db.TimeSlots.Where(slot => slot.PK_TimeSlot == serviceType).ToList();
+        var timeSlots = db.TimeSlots.Where(slot => slot.ServiceType == serviceType).ToList();
         return timeSlots;
     }
 
@@ -49,8 +49,8 @@ public partial class DataAccessLayer
     {
         var timeSlots = db.TimeSlots.Where(
                 slot => slot.ServiceType == serviceType
-                        && startDateInclusive >= slot.StartTime
-                        && endDateExclusive < slot.EndTime)
+                        && startDateInclusive >= startDateInclusive
+                        && endDateExclusive < endDateExclusive)
             .ToList();
 
         return timeSlots;
