@@ -1,8 +1,6 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Student_Services_Management_App_API.DAL;
-using Student_Services_Management_App_API.Models;
 
 namespace Student_Services_Management_App_API.Controllers;
 
@@ -38,34 +36,5 @@ public class AdminsController : ControllerBase
             return Ok(admin);
 
         return NotFound();
-    }
-
-    [HttpGet("me")]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> GetMe()
-    {
-        var me = GetCurrentUser();
-
-        if (me != null)
-            return Ok(me);
-
-        return NotFound();
-    }
-
-    private Admin? GetCurrentUser()
-    {
-        var identity = HttpContext.User.Identity as ClaimsIdentity;
-
-        if (identity == null)
-            return null;
-
-        var claims = identity.Claims;
-
-        var admin = new Admin();
-        admin.FirstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
-        admin.LastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
-        admin.Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value;
-
-        return admin;
     }
 }
