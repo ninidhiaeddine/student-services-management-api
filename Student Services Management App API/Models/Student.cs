@@ -1,10 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Student_Services_Management_App_API.Models;
 
 public class Student
 {
-    [Key] public int PK_Student { get; set; }
+    [JsonPropertyName("PK_Student")]
+    [Key] 
+    public int PK_Student { get; set; }
+
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
