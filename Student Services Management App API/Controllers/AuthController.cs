@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
 
         var token = GenerateToken(admin);
 
-        return Ok();
+        return Ok(token);
     }
 
     [HttpGet("students/me")]
@@ -101,9 +101,15 @@ public class AuthController : ControllerBase
         student.FirstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
         student.LastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         student.Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value;
-        student.Gender = int.Parse(claims.FirstOrDefault(c => c.Type == "Gender")?.Value);
-        student.IsDorms = int.Parse(claims.FirstOrDefault(c => c.Type == "IsDorms")?.Value);
-        student.StudentId = int.Parse(claims.FirstOrDefault(c => c.Type == "StudentId")?.Value);
+
+        int gender, isDorms, studentId;
+        int.TryParse(claims.FirstOrDefault(c => c.Type == "Gender")?.Value, out gender);
+        int.TryParse(claims.FirstOrDefault(c => c.Type == "IsDorms")?.Value, out isDorms);
+        int.TryParse(claims.FirstOrDefault(c => c.Type == "StudentId")?.Value, out studentId);
+
+        student.Gender = gender;
+        student.IsDorms = isDorms;
+        student.StudentId = studentId;
 
         return student;
     }
