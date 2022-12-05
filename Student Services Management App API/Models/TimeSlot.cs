@@ -9,7 +9,7 @@ public class TimeSlot
     [Key]
     public int PK_TimeSlot { get; set; }
 
-    public int ServiceType { get; set; }
+    public int ServiceType { get; set; } // {0: Laundry, 1: Cleaning, 2: Gym, 3: Pool}
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public int MaximumCapacity { get; set; }
