@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Student_Services_Management_App_API.DAL;
@@ -11,6 +12,7 @@ namespace Student_Services_Management_App_API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly DatabaseContext dbContext;
@@ -35,21 +37,118 @@ public class AuthController : ControllerBase
     [HttpPost("admins")]
     public async Task<ActionResult<Student>> SignInAsAdmin([FromBody] SignInDto signIn)
     {
-        return Ok();
+        var admin = AuthenticateAdmin(signIn);
+
+        if (admin == null)
+            return NotFound();
+
+        var token = GenerateToken(admin);
+
+        return Ok(token);
+    }
+
+    [HttpGet("students/me")]
+    [Authorize(Roles = "Student")]
+    public async Task<ActionResult> GetStudentMe()
+    {
+        var me = GetCurrentStudent();
+
+        if (me != null)
+            return Ok(me);
+
+        return NotFound();
+    }
+
+    [HttpGet("admins/me")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> GetAdminMe()
+    {
+        var me = GetCurrentAdmin();
+
+        if (me != null)
+            return Ok(me);
+
+        return NotFound();
+    }
+
+    private Admin? GetCurrentAdmin()
+    {
+        var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+        if (identity == null)
+            return null;
+
+        var claims = identity.Claims;
+
+        var admin = new Admin();
+        admin.FirstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
+        admin.LastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
+        admin.Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+
+        return admin;
+    }
+
+    private Student? GetCurrentStudent()
+    {
+        var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+        if (identity == null)
+            return null;
+
+        var claims = identity.Claims;
+
+        var student = new Student();
+        student.FirstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
+        student.LastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
+        student.Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value;
+
+        int gender, isDorms, studentId;
+        int.TryParse(claims.FirstOrDefault(c => c.Type == "Gender")?.Value, out gender);
+        int.TryParse(claims.FirstOrDefault(c => c.Type == "IsDorms")?.Value, out isDorms);
+        int.TryParse(claims.FirstOrDefault(c => c.Type == "StudentId")?.Value, out studentId);
+
+        student.Gender = gender;
+        student.IsDorms = isDorms;
+        student.StudentId = studentId;
+
+        return student;
     }
 
     private static string GenerateToken(Student student)
+    {
+        var claims = new[]
+        {
+            new Claim("FirstName", student.FirstName),
+            new Claim("LastName", student.LastName),
+            new Claim("Email", student.Email),
+            new Claim("StudentId", student.StudentId.ToString()),
+            new Claim("Gender", student.Gender.ToString()),
+            new Claim("IsDorms", student.IsDorms.ToString()),
+            new Claim(ClaimTypes.Role, "Student")
+        };
+
+        return GenerateToken(claims);
+    }
+
+    private static string GenerateToken(Admin admin)
+    {
+        var claims = new[]
+        {
+            new Claim("FirstName", admin.FirstName),
+            new Claim("LastName", admin.LastName),
+            new Claim("Email", admin.Email),
+            new Claim(ClaimTypes.Role, "Admin")
+        };
+
+        return GenerateToken(claims);
+    }
+
+    private static string GenerateToken(Claim[] claims)
     {
         var jwtKey = Environment.GetEnvironmentVariable("ASPNETCORE_JWTKEY");
         var jwtIssuer = Environment.GetEnvironmentVariable("ASPNETCORE_JWTISSUER");
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var claims = new[]
-        {
-            new Claim("FirstName", student.FirstName),
-            new Claim("LastName", student.LastName),
-            new Claim("Email", student.Email)
-        };
 
         var token = new JwtSecurityToken(
             jwtIssuer,
