@@ -80,7 +80,12 @@ public class AuthController : ControllerBase
 
         var claims = identity.Claims;
 
+
+        int PK_Admin;
+        int.TryParse(claims.FirstOrDefault(c => c.Type == "PK_Admin")?.Value, out PK_Admin);
+
         var admin = new Admin();
+        admin.PK_Admin = PK_Admin;
         admin.FirstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
         admin.LastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         admin.Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value;
@@ -97,15 +102,18 @@ public class AuthController : ControllerBase
 
         var claims = identity.Claims;
 
-        var student = new Student();
-        student.FirstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
-        student.LastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
-        student.Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value;
-
-        int gender, isDorms, studentId;
+        int PK_Student, gender, isDorms, studentId;
+        int.TryParse(claims.FirstOrDefault(c => c.Type == "PK_Student")?.Value, out PK_Student);
         int.TryParse(claims.FirstOrDefault(c => c.Type == "Gender")?.Value, out gender);
         int.TryParse(claims.FirstOrDefault(c => c.Type == "IsDorms")?.Value, out isDorms);
         int.TryParse(claims.FirstOrDefault(c => c.Type == "StudentId")?.Value, out studentId);
+
+        var student = new Student();
+
+        student.PK_Student = PK_Student;
+        student.FirstName = claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
+        student.LastName = claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
+        student.Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value;
 
         student.Gender = gender;
         student.IsDorms = isDorms;
@@ -118,6 +126,7 @@ public class AuthController : ControllerBase
     {
         var claims = new[]
         {
+            new Claim("PK_Student", student.PK_Student.ToString()),
             new Claim("FirstName", student.FirstName),
             new Claim("LastName", student.LastName),
             new Claim("Email", student.Email),
@@ -134,6 +143,7 @@ public class AuthController : ControllerBase
     {
         var claims = new[]
         {
+            new Claim("PK_Admin", admin.PK_Admin.ToString()),
             new Claim("FirstName", admin.FirstName),
             new Claim("LastName", admin.LastName),
             new Claim("Email", admin.Email),

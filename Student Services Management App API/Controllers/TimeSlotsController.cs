@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Student_Services_Management_App_API.DAL;
 using Student_Services_Management_App_API.Dtos;
@@ -10,6 +11,7 @@ namespace Student_Services_Management_App_API.Controllers;
 [ApiController]
 public class TimeSlotsController : ControllerBase
 {
+    private const string DateFormat = "MMM dd, yyyy HH:mm";
     private readonly DatabaseContext dbContext;
 
     public TimeSlotsController(DatabaseContext context)
@@ -21,10 +23,29 @@ public class TimeSlotsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<TimeSlot>> AddTimeSlots([FromBody] List<TimeSlotDto> dtos)
     {
+        if (IsOverlappingWithDbTimeSlots(dtos))
+            return Conflict(
+                "The Time Slots you are trying to add are overlapping with existing time slots in the database");
+
         var timeSlots = DtosToTimeSlots(dtos);
         DataAccessLayer.AddTimeSlots(dbContext, timeSlots);
 
         return Ok();
+    }
+
+    private bool IsOverlappingWithDbTimeSlots(List<TimeSlotDto> dtos)
+    {
+        var serviceType = dtos[0].ServiceType;
+        var startTime = dtos[0].StartTime;
+        var endTime = dtos[^1].EndTime;
+
+        var timeSlots = DataAccessLayer.GetTimeSlotsWithinDateRange(
+            dbContext,
+            serviceType,
+            DateTime.ParseExact(startTime, DateFormat, CultureInfo.InvariantCulture),
+            DateTime.ParseExact(endTime, DateFormat, CultureInfo.InvariantCulture));
+
+        return timeSlots.Count > 0;
     }
 
     [HttpGet]
@@ -48,6 +69,8 @@ public class TimeSlotsController : ControllerBase
     {
         List<TimeSlot> timeSlots;
 
+
+        Console.WriteLine(startDateInclusive + " | " + endDateExclusive);
         if (startDateInclusive.HasValue && endDateExclusive.HasValue)
             timeSlots = DataAccessLayer.GetTimeSlotsWithinDateRange(
                 dbContext,
@@ -71,8 +94,8 @@ public class TimeSlotsController : ControllerBase
             dbContext,
             timeSlotId,
             dto.ServiceType,
-            dto.StartTime,
-            dto.EndTime,
+            DateTime.ParseExact(dto.StartTime, DateFormat, CultureInfo.InvariantCulture),
+            DateTime.ParseExact(dto.EndTime, DateFormat, CultureInfo.InvariantCulture),
             dto.MaximumCapacity,
             dto.CurrentCapacity
         );
@@ -91,8 +114,8 @@ public class TimeSlotsController : ControllerBase
             var timeSlot = new TimeSlot();
 
             timeSlot.ServiceType = dto.ServiceType;
-            timeSlot.StartTime = dto.StartTime;
-            timeSlot.EndTime = dto.EndTime;
+            timeSlot.StartTime = DateTime.ParseExact(dto.StartTime, DateFormat, CultureInfo.InvariantCulture);
+            timeSlot.EndTime = DateTime.ParseExact(dto.EndTime, DateFormat, CultureInfo.InvariantCulture);
             timeSlot.MaximumCapacity = dto.MaximumCapacity;
             timeSlot.CurrentCapacity = dto.CurrentCapacity;
 

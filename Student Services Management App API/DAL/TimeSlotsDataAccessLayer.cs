@@ -47,10 +47,13 @@ public partial class DataAccessLayer
         DateTime startDateInclusive,
         DateTime endDateExclusive)
     {
+        foreach (var dbTimeSlot in db.TimeSlots)
+            Console.WriteLine(dbTimeSlot.ServiceType + " | " + serviceType);
+
         var timeSlots = db.TimeSlots.Where(
                 slot => slot.ServiceType == serviceType
-                        && startDateInclusive >= startDateInclusive
-                        && endDateExclusive < endDateExclusive)
+                        && DateTime.Compare(slot.StartTime, startDateInclusive) >= 0
+                        && DateTime.Compare(slot.EndTime, endDateExclusive) < 0)
             .ToList();
 
         return timeSlots;
