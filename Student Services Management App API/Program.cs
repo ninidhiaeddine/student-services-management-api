@@ -17,6 +17,9 @@ builder.Services.AddSwaggerGen();
 var connectionString = Environment.GetEnvironmentVariable("ASPNETCORE_CONNECTIONSTRING");
 builder.Services.AddDbContext<DatabaseContext>(options => options.UseMySQL(connectionString));
 
+// enable CORS:
+builder.Services.AddCors();
+
 // configure authentication
 var jwtIssuer = Environment.GetEnvironmentVariable("ASPNETCORE_JWTISSUER");
 var jwtKey = Environment.GetEnvironmentVariable("ASPNETCORE_JWTKEY");
@@ -34,6 +37,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         });
 
 var app = builder.Build();
+app.UseCors(builder =>
+{
+    builder
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
