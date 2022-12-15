@@ -1,14 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-
-namespace Student_Services_Management_App_API.Models;
+﻿namespace Student_Services_Management_App_API.Models;
 
 public class Reservation
 {
-    [JsonPropertyName("PK_Reservation")]
-    [Key]
-    public int PK_Reservation { get; set; }
+    // composite primary key:
+    public int FK_Reservations_TimeSlots { get; set; } // foreign key for Time Slot
+    public int FK_Reservations_Students { get; set; } // foreign key for Student
 
-    public int FK_Reservations_TimeSlots { get; set; }
-    public int FK_Reservations_Students { get; set; }
+    // navigation properties:
+    public TimeSlot TimeSlot { get; set; }
+    public Student Student { get; set; }
 }
