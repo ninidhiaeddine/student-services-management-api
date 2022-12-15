@@ -1,4 +1,5 @@
-﻿using Student_Services_Management_App_API.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Student_Services_Management_App_API.Models;
 
 namespace Student_Services_Management_App_API.DAL;
 
@@ -17,27 +18,23 @@ public partial class DataAccessLayer
         db.SaveChanges();
     }
 
-    public static Reservation? GetReservationById(DatabaseContext db, int reservationId)
-    {
-        var reservation = db.Reservations
-            .FirstOrDefault(r => r.PK_Reservation == reservationId);
-
-        return reservation;
-    }
-
     public static List<Reservation> GetReservationsByStudent(DatabaseContext db, int studentId)
     {
         var reservations = db.Reservations
             .Where(r => r.FK_Reservations_Students == studentId)
+            .Include(r => r.TimeSlot)
+            .Include(r => r.Student)
             .ToList();
 
         return reservations;
     }
 
-    public static List<Reservation> GetTimeSlotReservations(DatabaseContext db, int timeSlotId)
+    public static List<Reservation> GetReservationsByTimeSlot(DatabaseContext db, int timeSlotId)
     {
         var reservations = db.Reservations
             .Where(r => r.FK_Reservations_TimeSlots == timeSlotId)
+            .Include(r => r.TimeSlot)
+            .Include(r => r.Student)
             .ToList();
 
         return reservations;

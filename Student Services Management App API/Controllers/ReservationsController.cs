@@ -49,18 +49,6 @@ public class ReservationsController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("{reservationId:int}")]
-    [Authorize(Roles = "Admins, Students")]
-    public async Task<ActionResult> GetReservationById(int reservationId)
-    {
-        var reservation = DataAccessLayer.GetReservationById(dbContext, reservationId);
-
-        if (reservation != null)
-            return Ok(reservation);
-
-        return NotFound();
-    }
-
     [HttpGet]
     [Authorize(Roles = "Admins, Students")]
     public async Task<ActionResult> GetReservations(
@@ -75,8 +63,10 @@ public class ReservationsController : ControllerBase
 
         if (studentId.HasValue)
             reservations = DataAccessLayer.GetReservationsByStudent(dbContext, studentId.Value);
+        else if (timeSlotId.HasValue)
+            reservations = DataAccessLayer.GetReservationsByTimeSlot(dbContext, timeSlotId.Value);
         else
-            reservations = DataAccessLayer.GetTimeSlotReservations(dbContext, timeSlotId.Value);
+            return NotFound();
 
         if (reservations.Capacity > 0)
             return Ok(reservations);
