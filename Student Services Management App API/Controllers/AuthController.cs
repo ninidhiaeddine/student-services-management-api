@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("students")]
-    public async Task<ActionResult<Student>> SignInAsStudent([FromBody] SignInDto signIn)
+    public async Task<ActionResult<Student>> SignInStudent([FromBody] SignInDto signIn)
     {
         var student = AuthenticateStudent(signIn);
 
@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("admins")]
-    public async Task<ActionResult<Student>> SignInAsAdmin([FromBody] SignInDto signIn)
+    public async Task<ActionResult<Student>> SignInAdmin([FromBody] SignInDto signIn)
     {
         var admin = AuthenticateAdmin(signIn);
 

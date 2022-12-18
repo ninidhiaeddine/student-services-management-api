@@ -14,4 +14,6 @@ public class TimeSlot
     public DateTime EndTime { get; set; }
     public int MaximumCapacity { get; set; }
     public int CurrentCapacity { get; set; } = 0;
+
+    public ICollection<Reservation> Reservations { get; set; } // navigation property
 }

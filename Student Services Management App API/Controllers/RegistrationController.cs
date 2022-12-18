@@ -19,7 +19,7 @@ public class RegistrationController : ControllerBase
     }
 
     [HttpPost("students")]
-    public async Task<ActionResult<Student>> SignUpAsStudent([FromBody] StudentSignUpDto student)
+    public async Task<ActionResult<Student>> SignUpStudent([FromBody] StudentSignUpDto student)
     {
         DataAccessLayer.AddStudent(
             dbContext,
@@ -36,7 +36,7 @@ public class RegistrationController : ControllerBase
     }
 
     [HttpPost("admins")]
-    public async Task<ActionResult<Student>> SignUpAsAdmin([FromBody] AdminSignUpDto admin)
+    public async Task<ActionResult<Student>> SignUpAdmin([FromBody] AdminSignUpDto admin)
     {
         DataAccessLayer.AddAdmin(
             dbContext,

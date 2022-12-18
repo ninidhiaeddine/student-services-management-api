@@ -27,7 +27,7 @@ public class AdminsController : ControllerBase
         return NotFound();
     }
 
-    [HttpGet("{adminId}")]
+    [HttpGet("{adminId:int}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> GetAdmin(int adminId)
     {
