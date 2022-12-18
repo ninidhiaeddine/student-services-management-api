@@ -11,6 +11,7 @@ public partial class DataAccessLayer
         int studentId)
     {
         var reservation = new Reservation();
+
         reservation.FK_Reservations_TimeSlots = timeSlotId;
         reservation.FK_Reservations_Students = studentId;
 
